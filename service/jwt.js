@@ -1,8 +1,13 @@
 const jwt = require('jsonwebtoken'); // 令牌
 
 const _secretKey = 'zhangbo'
-const _expiresIn = 60 * 60 * 24 * 30// 30d
+const _expiresIn = 60 * 60 * 24 * 30 // 30d
 module.exports = {
+    /**
+     * 校验tken
+     * @param token
+     * @return {boolean}
+     */
     verifyToken(token) {
         try {
           jwt.verify(token, _secretKey); // 校验令牌
@@ -12,6 +17,11 @@ module.exports = {
         }
       },
 
+    /**
+     * 生成Token
+     * @param data
+     * @return {*}
+     */
     createToken(data) {
         const token = jwt.sign(
             data,
@@ -22,6 +32,6 @@ module.exports = {
           );
         return token
     }
-}  
-  
-  
+}
+
+

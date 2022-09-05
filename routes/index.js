@@ -14,7 +14,7 @@ router.get('/', async (ctx, next) => {
  * 字符串
  */
 router.get('/string', async (ctx, next) => {
-  ctx.body = 'koa2 string'
+  ctx.body = '张博'
 })
 
 /**

@@ -1,5 +1,6 @@
 const router = require('koa-router')();
 const { userD, User } = require('../sequelize/user')
+const sequelize = require('../sequelize/db')
 const XLSX = require('xlsx');
 const { createToken, verifyToken } = require('../service/jwt');
 
@@ -69,6 +70,7 @@ router.post('/login', async function (ctx, next) {
     }
     let res = await User.findOne({
         where: param,
+        raw: true
     });
     if (res) {
         const data = {
@@ -86,7 +88,7 @@ router.post('/login', async function (ctx, next) {
  * token测试
  */
 router.get('/tokenTest', auth(), async function (ctx, next) {
-    success(ctx, ctx.request.header)
+        success(ctx, ctx.request.header)
 })
 
 
@@ -94,9 +96,15 @@ router.get('/tokenTest', auth(), async function (ctx, next) {
  * 列表
  */
 router.get('/getList', async function (ctx, next) {
+    // const data = await sequelize.query(`select * from user_copy limit 0,10`, {
+    //     type: sequelize.QueryTypes.SELECT,
+    //     raw: true,
+    // });
+    // console.log(data)
     let res = await User.findAndCountAll({
         limit: 10,
         offset: 0,
+        // order: [['created_at', 'DESC']],
         logging: true
     });
     if (res) {
@@ -116,7 +124,8 @@ router.get('/getUser', async function (ctx, next) {
     const res = await User.findOne({
         where: {
             id: id
-        }
+        },
+        logging: true
     });
     if (!res) {
         return fail(ctx, '该用户不存在')
@@ -207,7 +216,7 @@ router.get('/export', async function (ctx, next) {
     });
     // 表头中文
     const headerDis = {id: '用户id', userName: '用户名', openId: 'openId', email: '邮箱', description: '描述',status: '状态'}
-    // 表头字段
+    // 字段
     const header = [
         'id',
         'userName',
@@ -239,6 +248,8 @@ router.get('/export', async function (ctx, next) {
      */
     XLSX.utils.book_append_sheet(wb, sheet, `测试sheet`);
     XLSX.utils.book_append_sheet(wb, sheet, `测试sheet2`);
+    XLSX.utils.book_append_sheet(wb, sheet, `测试sheet3`);
+    XLSX.utils.book_append_sheet(wb, sheet, `测试sheet4`);
     /**
      * 工作簿生成文件
      */
@@ -249,6 +260,7 @@ router.get('/export', async function (ctx, next) {
      * 设置下载头和文件名
      */
     ctx.set('Content-Disposition', `attachment; filename=${encodeURIComponent('测试')}.xlsx`);
+    ctx.set('Content-Type', `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`);
     ctx.body = excelBuffer
 })
 
